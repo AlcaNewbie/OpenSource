@@ -1,3 +1,13 @@
+window.enterApp = function() {
+  const welcome = document.getElementById("welcomeScreen");
+  const app = document.getElementById("mainApp");
+  welcome.style.opacity = "0";
+  setTimeout(() => {
+    welcome.style.display = "none";
+    app.style.display = "flex";
+  }, 300);
+};
+
 /* ================= ANTI DEVTOOLS ================= */
 (function() {
   document.addEventListener('contextmenu', e => e.preventDefault());

@@ -3,12 +3,45 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>All Fitur — AlcaW44</title>
+<title>4lcaDev | All Fitur</title>
 <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <div class="app">
-    <!-- Sidebar -->
+  <!-- WELCOME SCREEN (Landing Page) -->
+  <div id="welcomeScreen" class="welcome-screen">
+    <div class="welcome-content">
+      <div class="badge">Welcome to 4lcaDev Space</div>
+      <h1>Halo, Saya <span>4lcaDev</span></h1>
+      <p class="intro">Masih belajar coding dan senang ngulik hal-hal baru, terutama seputar web development dan otomasi. Beberapa tools di sini lahir dari proses belajar itu.</p>
+      
+      <div class="skills-grid">
+        <div class="skill-card">
+          <h3>Frontend</h3>
+          <p>React, HTML5, CSS3, JavaScript</p>
+        </div>
+        <div class="skill-card">
+          <h3>Backend</h3>
+          <p>Node.js, Python, Express</p>
+        </div>
+        <div class="skill-card">
+          <h3>Infra</h3>
+          <p>Cloud Server, Docker, MongoDB</p>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <a href="https://folio.alca.my.id/" target="_blank" class="btn-outline">Kunjungi Portofolio Lengkap ↗</a>
+        <button class="btn-primary" onclick="enterApp()">Masuk ke All Fitur 🚀</button>
+      </div>
+      
+      <div class="footer-credit">
+        credits: AlcaW44 • <a href="https://whatsapp.com/channel/0029Vb82nkLEwEjtLSQ49I44" target="_blank">Saluran WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP (Tersembunyi di awal) -->
+  <div class="app" id="mainApp" style="display: none;">
     <aside class="sidebar" id="sidebar">
       <div class="brand"><div class="brand-dot"></div><span>All Fitur</span></div>
       <nav class="nav">
@@ -58,7 +91,6 @@
       </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="main">
       <header class="topbar">
         <button class="menu-btn" id="menuBtn">☰</button>
@@ -68,6 +100,7 @@
       <section class="content" id="content"></section>
     </main>
   </div>
+
   <script src="/script.js"></script>
 </body>
 </html>
