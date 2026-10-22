@@ -54,7 +54,7 @@ const views = {
 const contentEl = document.getElementById('content');
 const crumbEl = document.getElementById('crumb');
 const navItems = document.querySelectorAll('.nav-item');
-const sidebar = document.querySelector('.sidebar');
+const sidebar = document.getElementById('sidebar');
 const menuBtn = document.getElementById('menuBtn');
 
 function renderView(key) {
@@ -67,47 +67,37 @@ function renderView(key) {
       <div class="view">
         <h1>${v.title}</h1><p class="desc">${v.desc}</p>
         
-        <div class="amprem-container">
+        <div class="amprem-container" style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px;">
           <div class="amprem-group">
-            <label>Stage 1 — Email Alight Motion:</label>
-            <input type="email" id="amEmail1" placeholder="email@domain.com" />
-            <button class="btn" style="width:100%; margin-top:10px;" onclick="processAmPrem('1')">[1/2] kirim magic link</button>
+            <label style="display:block; font-size:13px; color:var(--text-dim); margin-bottom:8px;">Stage 1 — Email Alight Motion:</label>
+            <input type="email" id="amEmail1" placeholder="email@domain.com" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text); outline:none; margin-bottom:10px;" />
+            <button class="btn" style="width:100%; margin-top:5px;" onclick="processAmPrem('1')">[1/2] kirim magic link</button>
           </div>
 
           <div class="amprem-group" style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
-            <label>Stage 2 — Email Alight Motion:</label>
-            <input type="email" id="amEmail2" placeholder="email@domain.com" />
+            <label style="display:block; font-size:13px; color:var(--text-dim); margin-bottom:8px;">Stage 2 — Email Alight Motion:</label>
+            <input type="email" id="amEmail2" placeholder="email@domain.com" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text); outline:none; margin-bottom:10px;" />
             
-            <label style="margin-top:15px; display:block;">Stage 2 — Paste Magic Link (Firebase):</label>
-            <input type="text" id="amLink" placeholder="https://alight-creative.firebaseapp.com/..." />
+            <label style="display:block; font-size:13px; color:var(--text-dim); margin-bottom:8px; margin-top:15px;">Stage 2 — Paste Magic Link (Firebase):</label>
+            <input type="text" id="amLink" placeholder="https://alight-creative.firebaseapp.com/..." style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text); outline:none; margin-bottom:10px;" />
             
-            <button class="btn" style="width:100%; margin-top:15px;" onclick="processAmPrem('2')">[2/2] verifikasi & aktifkan premium</button>
+            <button class="btn" style="width:100%; margin-top:5px;" onclick="processAmPrem('2')">[2/2] verifikasi & aktifkan premium</button>
           </div>
 
-          <a href="https://whatsapp.com/channel/0029Vb82nkLEwEjtLSQ49I44" target="_blank" class="btn btn-outline" style="width:100%; margin-top:20px; text-align:center; display:block; text-decoration:none;">JOIN OUR CHANNEL</a>
+          <a href="https://whatsapp.com/channel/0029Vb82nkLEwEjtLSQ49I44" target="_blank" class="btn" style="width:100%; margin-top:20px; text-align:center; display:block; text-decoration:none; background:transparent; border:1px solid var(--accent); color:var(--accent);">JOIN OUR CHANNEL</a>
         </div>
 
         <div class="result" id="result" style="display:none; margin-top:20px;">
           <div class="result-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:10px;">
              <span>Response JSON:</span>
              <div style="display:flex; gap:10px;">
-               <button class="btn-copy" onclick="copyJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">copy json</button>
-               <button class="btn-download" onclick="downloadJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">download .json</button>
+               <button onclick="copyJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">copy json</button>
+               <button onclick="downloadJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">download .json</button>
              </div>
           </div>
           <pre id="jsonResult" style="user-select:text; white-space:pre-wrap; word-break:break-all;"></pre>
         </div>
       </div>
-      
-      <style>
-        .amprem-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
-        .amprem-group label { display:block; font-size:13px; color:var(--text-dim); margin-bottom:8px; }
-        .amprem-group input { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text); font-family:var(--font); margin-bottom:10px; outline:none; }
-        .amprem-group input:focus { border-color: var(--accent); }
-        .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
-        .btn-outline:hover { background: var(--accent); color: #000; }
-        .result pre { font-size:12px; color:#4ade80; }
-      </style>
     `;
     return;
   }
@@ -127,8 +117,8 @@ function renderView(key) {
         <div class="result-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:10px;">
            <span>Response JSON:</span>
            <div style="display:flex; gap:10px;">
-             <button class="btn-copy" onclick="copyJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">copy json</button>
-             <button class="btn-download" onclick="downloadJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">download .json</button>
+             <button onclick="copyJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">copy json</button>
+             <button onclick="downloadJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">download .json</button>
            </div>
         </div>
         <pre id="jsonResult" style="user-select:text; white-space:pre-wrap; word-break:break-all; color:#4ade80; font-size:12px;"></pre>
@@ -151,7 +141,7 @@ function renderView(key) {
       const res = await fetch(v.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = await res.json();
       
-      window.currentJsonData = data; // Simpan untuk copy/download
+      window.currentJsonData = data;
       document.getElementById('jsonResult').textContent = JSON.stringify(data, null, 2);
       
       const imgUrl = data?.image_url || data?.data?.url || data?.result?.url || data?.result?.image_url || (data?.image && data.image.startsWith('data:image') ? data.image : null);
@@ -218,11 +208,27 @@ navItems.forEach(item => {
     navItems.forEach(n => n.classList.remove('active'));
     item.classList.add('active');
     renderView(item.dataset.view);
-    if (window.innerWidth <= 768) sidebar.classList.remove('open');
+    if (window.innerWidth <= 768) sidebar.classList.remove('open'); // Tutup di mobile
   });
 });
 
-menuBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+// Logika Slide Buka/Tutup Sidebar
+let isSidebarOpen = true;
+
+menuBtn.addEventListener('click', () => {
+  if (window.innerWidth <= 768) {
+    // Mode Mobile
+    sidebar.classList.toggle('open');
+  } else {
+    // Mode Desktop (Slide keluar masuk)
+    isSidebarOpen = !isSidebarOpen;
+    if (isSidebarOpen) {
+      sidebar.classList.remove('collapsed');
+    } else {
+      sidebar.classList.add('collapsed');
+    }
+  }
+});
 
 document.querySelector('.nav-group').classList.add('open');
 document.querySelector('[data-view="bypass-sfl"]').classList.add('active');
