@@ -1,21 +1,11 @@
 {
   "version": 2,
   "functions": {
-    "api/**/*.js": {
-      "maxDuration": 60,
-      "memory": 1024
+    "api/index.js": {
+      "maxDuration": 60
     }
   },
   "rewrites": [
-    { "source": "/api/bypass/sfl", "destination": "/api/bypass/sfl.js" },
-    { "source": "/api/bypass/bicolink", "destination": "/api/bypass/bicolink.js" },
-    { "source": "/api/bypass/khadavvi", "destination": "/api/bypass/khadavvi.js" },
-    { "source": "/api/bypass/adlinksumo", "destination": "/api/bypass/adlinksumo.js" },
-    { "source": "/api/bypass/vplink", "destination": "/api/bypass/vplink.js" },
-    { "source": "/api/image/upscale", "destination": "/api/image/upscale.js" },
-    { "source": "/api/image/text2image", "destination": "/api/image/text2image.js" },
-    { "source": "/api/download/aio", "destination": "/api/download/aio.js" },
-    { "source": "/api/create/amprem", "destination": "/api/create/amprem.js" },
-    { "source": "/api/create/netflix", "destination": "/api/create/netflix.js" }
+    { "source": "/api/(.*)", "destination": "/api/index.js" }
   ]
 }
