@@ -1,13 +1,3 @@
-window.enterApp = function() {
-  const welcome = document.getElementById("welcomeScreen");
-  const app = document.getElementById("mainApp");
-  welcome.style.opacity = "0";
-  setTimeout(() => {
-    welcome.style.display = "none";
-    app.style.display = "flex";
-  }, 300);
-};
-
 /* ================= ANTI DEVTOOLS ================= */
 (function() {
   document.addEventListener('contextmenu', e => e.preventDefault());
@@ -20,11 +10,21 @@ window.enterApp = function() {
   setInterval(() => {
     const start = performance.now(); debugger;
     if (performance.now() - start > 100) {
-      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0a0a;color:#f5f5f5;font-family:sans-serif;text-align:center;"><h2>Akses Ditolak.<br>Tutup Developer Tools.</h2></div>';
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#09090b;color:#f4f4f5;font-family:sans-serif;text-align:center;"><h2>Akses Ditolak.<br>Tutup Developer Tools.</h2></div>';
       window.location.reload();
     }
   }, 1000);
 })();
+
+window.enterApp = function() {
+  const welcome = document.getElementById("welcomeScreen");
+  const app = document.getElementById("mainApp");
+  welcome.style.opacity = "0";
+  setTimeout(() => {
+    welcome.style.display = "none";
+    app.style.display = "flex";
+  }, 300);
+};
 
 /* ================= ROUTER UI ================= */
 const views = {
@@ -53,9 +53,9 @@ const views = {
   'bypass-sub4unlock': { crumb: 'Bypass / Sub4Unlock', title: 'Sub4Unlock Bypasser', desc: 'Bypass sub4unlock.', fields: [{ name: 'url', label: 'URL', type: 'text', placeholder: 'https://...' }], endpoint: '/api/bypass/sub4unlock' },
   'bypass-tpi': { crumb: 'Bypass / TPI', title: 'TPI Bypasser', desc: 'Token Base64 Bypass.', fields: [{ name: 'url', label: 'URL', type: 'text', placeholder: 'https://...' }], endpoint: '/api/bypass/tpi' },
   'bypass-universal': { crumb: 'Bypass / Universal', title: 'Universal Bypasser', desc: 'Universal Bypass.', fields: [{ name: 'url', label: 'URL', type: 'text', placeholder: 'https://...' }], endpoint: '/api/bypass/universal' },
-  'image-upscale': { crumb: 'Image / Upscale', title: 'AI Image Upscale', desc: 'Upscale gambar via Rezolve.', fields: [{ name: 'url', label: 'URL Gambar', type: 'text', placeholder: 'https://...' }, { name: 'multiplier', label: 'Multiplier', type: 'select', options: ['2','4'] }], endpoint: '/api/image/upscale' },
+  'image-upscale': { crumb: 'Image / Upscale', title: 'AI Image Upscale', desc: 'Upscale gambar via Rezolve.', fields: [{ name: 'upload', label: 'Upload Gambar', type: 'upload' }, { name: 'multiplier', label: 'Multiplier', type: 'select', options: ['2','4'] }], endpoint: '/api/image/upscale' },
   'image-t2i': { crumb: 'Image / Text to Image', title: 'Text to Image', desc: 'Generate gambar dari prompt.', fields: [{ name: 'prompt', label: 'Prompt', type: 'textarea', placeholder: 'kucing...' }, { name: 'aspectRatio', label: 'Ratio', type: 'select', options: ['1:1','16:9','9:16','4:3','3:4'] }], endpoint: '/api/image/text2image' },
-  'image-removebg': { crumb: 'Image / Remove BG', title: 'Remove Background', desc: 'Hapus background gambar.', fields: [{ name: 'url', label: 'URL Gambar', type: 'text', placeholder: 'https://...' }], endpoint: '/api/image/removebg' },
+  'image-removebg': { crumb: 'Image / Remove BG', title: 'Remove Background', desc: 'Hapus background gambar.', fields: [{ name: 'upload', label: 'Upload Gambar', type: 'upload' }], endpoint: '/api/image/removebg' },
   'dl-aio': { crumb: 'Download / AIO', title: 'All In One Downloader', desc: 'Download video sosmed.', fields: [{ name: 'url', label: 'URL Video', type: 'text', placeholder: 'https://tiktok.com/...' }], endpoint: '/api/download/aio' },
   'create-amprem': { crumb: 'Create / Am Prem', title: 'Alight Motion Premium', desc: 'Dapatkan akses premium Alight Motion secara gratis.', fields: [], endpoint: '/api/create/amprem' },
   'create-netflix': { crumb: 'Create / Netflix', title: 'Netflix Generator', desc: 'Generate token Netflix aktif.', fields: [{ name: 'count', label: 'Jumlah Token', type: 'number', value: 1 }], endpoint: '/api/create/netflix' }
@@ -67,45 +67,37 @@ const navItems = document.querySelectorAll('.nav-item');
 const sidebar = document.getElementById('sidebar');
 const menuBtn = document.getElementById('menuBtn');
 
+// Global File State
+let uploadedBase64 = null;
+
 function renderView(key) {
   const v = views[key];
   if (!v) return;
   crumbEl.textContent = v.crumb;
+  uploadedBase64 = null; // Reset file state
 
   if (key === 'create-amprem') {
     contentEl.innerHTML = `
       <div class="view">
         <h1>${v.title}</h1><p class="desc">${v.desc}</p>
-        
-        <div class="amprem-container" style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px;">
-          <div class="amprem-group">
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:24px;">
+          <div style="margin-bottom:20px;">
             <label style="display:block; font-size:13px; color:var(--text-dim); margin-bottom:8px;">Stage 1 — Email Alight Motion:</label>
-            <input type="email" id="amEmail1" placeholder="email@domain.com" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text); outline:none; margin-bottom:10px;" />
-            <button class="btn" style="width:100%; margin-top:5px;" onclick="processAmPrem('1')">[1/2] kirim magic link</button>
+            <input type="email" id="amEmail1" placeholder="email@domain.com" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text); outline:none; margin-bottom:12px;" />
+            <button class="btn" style="width:100%;" onclick="processAmPrem('1')">[1/2] kirim magic link</button>
           </div>
-
-          <div class="amprem-group" style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
+          <div style="border-top: 1px solid var(--border); padding-top: 20px;">
             <label style="display:block; font-size:13px; color:var(--text-dim); margin-bottom:8px;">Stage 2 — Email Alight Motion:</label>
-            <input type="email" id="amEmail2" placeholder="email@domain.com" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text); outline:none; margin-bottom:10px;" />
-            
-            <label style="display:block; font-size:13px; color:var(--text-dim); margin-bottom:8px; margin-top:15px;">Stage 2 — Paste Magic Link (Firebase):</label>
-            <input type="text" id="amLink" placeholder="https://alight-creative.firebaseapp.com/..." style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text); outline:none; margin-bottom:10px;" />
-            
-            <button class="btn" style="width:100%; margin-top:5px;" onclick="processAmPrem('2')">[2/2] verifikasi & aktifkan premium</button>
+            <input type="email" id="amEmail2" placeholder="email@domain.com" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text); outline:none; margin-bottom:12px;" />
+            <label style="display:block; font-size:13px; color:var(--text-dim); margin-bottom:8px;">Stage 2 — Paste Magic Link (Firebase):</label>
+            <input type="text" id="amLink" placeholder="https://alight-creative.firebaseapp.com/..." style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text); outline:none; margin-bottom:12px;" />
+            <button class="btn" style="width:100%;" onclick="processAmPrem('2')">[2/2] verifikasi & aktifkan premium</button>
           </div>
-
-          <a href="https://whatsapp.com/channel/0029Vb82nkLEwEjtLSQ49I44" target="_blank" class="btn" style="width:100%; margin-top:20px; text-align:center; display:block; text-decoration:none; background:transparent; border:1px solid var(--accent); color:var(--accent);">JOIN OUR CHANNEL</a>
+          <a href="https://whatsapp.com/channel/0029Vb82nkLEwEjtLSQ49I44" target="_blank" class="btn" style="width:100%; margin-top:20px; text-align:center; display:block; text-decoration:none; background:transparent; border:1px solid var(--border); color:var(--text);">JOIN OUR CHANNEL</a>
         </div>
-
-        <div class="result" id="result" style="display:none; margin-top:20px;">
-          <div class="result-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:10px;">
-             <span>Response JSON:</span>
-             <div style="display:flex; gap:10px;">
-               <button onclick="copyJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">copy json</button>
-               <button onclick="downloadJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">download .json</button>
-             </div>
-          </div>
-          <pre id="jsonResult" style="user-select:text; white-space:pre-wrap; word-break:break-all;"></pre>
+        <div class="result" id="result">
+          <div class="result-header"><span>Response JSON</span><div class="result-actions"><button onclick="copyJson()">copy json</button><button onclick="downloadJson()">download</button></div></div>
+          <pre id="jsonResult"></pre>
         </div>
       </div>
     `;
@@ -113,6 +105,18 @@ function renderView(key) {
   }
 
   const fieldsHtml = v.fields.map(f => {
+    if (f.type === 'upload') {
+      return `<div class="field">
+        <label>${f.label}</label>
+        <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          <p>Click or drag & drop files here</p>
+          <span>Maksimal 10MB (JPG, PNG, WEBP)</span>
+          <img id="previewImg" class="preview-img" />
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleFile(this.files[0])" />
+      </div>`;
+    }
     if (f.type === 'select') return `<div class="field"><label>${f.label}</label><select name="${f.name}">${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}</select></div>`;
     if (f.type === 'textarea') return `<div class="field"><label>${f.label}</label><textarea name="${f.name}" placeholder="${f.placeholder||''}"></textarea></div>`;
     return `<div class="field"><label>${f.label}</label><input type="${f.type}" name="${f.name}" placeholder="${f.placeholder||''}" value="${f.value||''}" /></div>`;
@@ -122,19 +126,23 @@ function renderView(key) {
     <div class="view">
       <h1>${v.title}</h1><p class="desc">${v.desc}</p>
       <form id="theForm">${fieldsHtml}<button class="btn" type="submit" id="submitBtn">Proses</button></form>
-      
-      <div class="result" id="result" style="display:none;">
-        <div class="result-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:10px;">
-           <span>Response JSON:</span>
-           <div style="display:flex; gap:10px;">
-             <button onclick="copyJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">copy json</button>
-             <button onclick="downloadJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">download .json</button>
-           </div>
-        </div>
-        <pre id="jsonResult" style="user-select:text; white-space:pre-wrap; word-break:break-all; color:#4ade80; font-size:12px;"></pre>
+      <div class="result" id="result">
+        <div class="result-header"><span>Response JSON</span><div class="result-actions"><button onclick="copyJson()">copy json</button><button onclick="downloadJson()">download</button></div></div>
+        <pre id="jsonResult"></pre>
         <div id="imageContainer"></div>
       </div>
     </div>`;
+
+  // Setup Drag & Drop
+  const dropZone = document.getElementById('dropZone');
+  if (dropZone) {
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault(); dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+  }
 
   document.getElementById('theForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -142,6 +150,8 @@ function renderView(key) {
     const out = document.getElementById('result');
     const payload = {};
     new FormData(e.target).forEach((val, key) => payload[key] = val);
+    
+    if (uploadedBase64) payload.imageBase64 = uploadedBase64;
 
     btn.disabled = true; btn.textContent = 'Memproses…';
     out.style.display = 'block'; document.getElementById('jsonResult').textContent = '⏳ Sedang diproses…';
@@ -150,13 +160,12 @@ function renderView(key) {
     try {
       const res = await fetch(v.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = await res.json();
-      
       window.currentJsonData = data;
       document.getElementById('jsonResult').textContent = JSON.stringify(data, null, 2);
       
       const imgUrl = data?.image_url || data?.data?.url || data?.result?.url || data?.result?.image_url || (data?.image && data.image.startsWith('data:image') ? data.image : null);
       if (imgUrl) {
-        const img = document.createElement('img'); img.src = imgUrl; img.style.maxWidth = '100%'; img.style.marginTop = '10px'; img.style.borderRadius = '8px';
+        const img = document.createElement('img'); img.src = imgUrl;
         document.getElementById('imageContainer').appendChild(img);
       }
     } catch (err) {
@@ -168,7 +177,20 @@ function renderView(key) {
   });
 }
 
-/* ================= GLOBAL FUNCTIONS ================= */
+window.handleFile = function(file) {
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) return alert('File terlalu besar! Maksimal 10MB.');
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    uploadedBase64 = e.target.result;
+    const preview = document.getElementById('previewImg');
+    if (preview) { preview.src = uploadedBase64; preview.style.display = 'block'; }
+    const dropText = document.querySelector('.upload-zone p');
+    if (dropText) dropText.textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+};
+
 window.copyJson = function() {
   if (!window.currentJsonData) return;
   navigator.clipboard.writeText(JSON.stringify(window.currentJsonData, null, 2)).then(() => alert('JSON berhasil dicopy!'));
@@ -178,9 +200,7 @@ window.downloadJson = function() {
   if (!window.currentJsonData) return;
   const blob = new Blob([JSON.stringify(window.currentJsonData, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'result.json'; a.click();
-  URL.revokeObjectURL(url);
+  const a = document.createElement('a'); a.href = url; a.download = 'result.json'; a.click(); URL.revokeObjectURL(url);
 };
 
 window.processAmPrem = async function(stage) {
@@ -188,26 +208,15 @@ window.processAmPrem = async function(stage) {
   const magicLink = stage === '2' ? document.getElementById('amLink').value : '';
   const out = document.getElementById('result');
   const pre = document.getElementById('jsonResult');
-  
   if (!email) return alert('Email wajib diisi!');
   if (stage === '2' && !magicLink) return alert('Magic link wajib diisi!');
-
-  out.style.display = 'block';
-  pre.textContent = '⏳ Sedang memproses...';
-  pre.style.color = '#4ade80';
-
+  out.style.display = 'block'; pre.textContent = '⏳ Sedang memproses...';
   try {
     const res = await fetch('/api/create/amprem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ stage, email, magicLink }) });
-    const data = await res.json();
-    window.currentJsonData = data;
-    pre.textContent = JSON.stringify(data, null, 2);
-  } catch (err) {
-    pre.textContent = '❌ Error: ' + err.message;
-    pre.style.color = '#f87171';
-  }
+    const data = await res.json(); window.currentJsonData = data; pre.textContent = JSON.stringify(data, null, 2);
+  } catch (err) { pre.textContent = '❌ Error: ' + err.message; pre.style.color = '#f87171'; }
 };
 
-/* ================= MENU & NAVIGATION ================= */
 document.querySelectorAll('.nav-title').forEach(title => {
   title.addEventListener('click', () => title.parentElement.classList.toggle('open'));
 });
@@ -218,25 +227,17 @@ navItems.forEach(item => {
     navItems.forEach(n => n.classList.remove('active'));
     item.classList.add('active');
     renderView(item.dataset.view);
-    if (window.innerWidth <= 768) sidebar.classList.remove('open'); // Tutup di mobile
+    if (window.innerWidth <= 768) sidebar.classList.remove('open');
   });
 });
 
-// Logika Slide Buka/Tutup Sidebar
 let isSidebarOpen = true;
-
 menuBtn.addEventListener('click', () => {
-  if (window.innerWidth <= 768) {
-    // Mode Mobile
-    sidebar.classList.toggle('open');
-  } else {
-    // Mode Desktop (Slide keluar masuk)
+  if (window.innerWidth <= 768) { sidebar.classList.toggle('open'); } 
+  else {
     isSidebarOpen = !isSidebarOpen;
-    if (isSidebarOpen) {
-      sidebar.classList.remove('collapsed');
-    } else {
-      sidebar.classList.add('collapsed');
-    }
+    if (isSidebarOpen) sidebar.classList.remove('collapsed');
+    else sidebar.classList.add('collapsed');
   }
 });
 

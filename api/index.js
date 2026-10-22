@@ -27,22 +27,24 @@ module.exports = async (req, res) => {
       return res.json(await fetchTheresav(`/api/bypass/${type}`, body));
     }
 
-    if (path === 'image/upscale') return res.json(await upscale(body.url, body.multiplier));
+    if (path === 'image/upscale') return res.json(await upscale(body.imageBase64 || body.url, body.multiplier));
     if (path === 'image/text2image') return res.json(await generate(body.prompt, { aspectRatio: body.aspectRatio }));
     
     if (path === 'image/removebg') {
-      const img = await axios.get(body.url, { responseType: 'arraybuffer' });
       const form = new FormData();
-      form.append('image', Buffer.from(img.data), 'image.jpg');
+      if (body.imageBase64) {
+        const base64Data = body.imageBase64.replace(/^data:image\/\w+;base64,/, "");
+        form.append('image', Buffer.from(base64Data, 'base64'), 'image.jpg');
+      } else {
+        const img = await axios.get(body.url, { responseType: 'arraybuffer' });
+        form.append('image', Buffer.from(img.data), 'image.jpg');
+      }
       const response = await axios.post('https://api.theresav.eu/api/image/magichour/removebg', form, { 
         headers: { ...form.getHeaders(), 'x-apikey': '04i97' } 
       });
-      
-      // Timpa creator
       const data = response.data;
       data.creator = 'AlcaW44';
       data.saluran = 'https://whatsapp.com/channel/0029Vb82nkLEwEjtLSQ49I44';
-      
       return res.json(data);
     }
 
@@ -56,10 +58,6 @@ module.exports = async (req, res) => {
 
     return res.status(404).json({ error: 'Endpoint tidak ditemukan' });
   } catch (err) {
-    return res.status(500).json({ 
-      creator: 'AlcaW44', 
-      saluran: 'https://whatsapp.com/channel/0029Vb82nkLEwEjtLSQ49I44', 
-      error: err.message 
-    });
+    return res.status(500).json({ creator: 'AlcaW44', saluran: 'https://whatsapp.com/channel/0029Vb82nkLEwEjtLSQ49I44', error: err.message });
   }
 };
