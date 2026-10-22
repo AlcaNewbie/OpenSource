@@ -47,3 +47,16 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); font
   .menu-btn { display: block; }
   .content { padding: 20px 16px; }
 }
+
+/* Dropdown Menu */
+.nav-group .nav-item { display: none; }
+.nav-group.open .nav-item { display: block; }
+.nav-title { cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }
+.nav-title::after { content: '▾'; font-size: 12px; transition: transform 0.2s; }
+.nav-group.open .nav-title::after { transform: rotate(-180deg); }
+/* Dropdown Menu */
+.nav-group .nav-item { display: none; }
+.nav-group.open .nav-item { display: block; }
+.nav-title { cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }
+.nav-title::after { content: '▾'; font-size: 12px; transition: transform 0.2s; }
+.nav-group.open .nav-title::after { transform: rotate(-180deg); }
