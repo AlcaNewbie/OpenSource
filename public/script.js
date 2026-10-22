@@ -47,8 +47,8 @@ const views = {
   'image-t2i': { crumb: 'Image / Text to Image', title: 'Text to Image', desc: 'Generate gambar dari prompt.', fields: [{ name: 'prompt', label: 'Prompt', type: 'textarea', placeholder: 'kucing...' }, { name: 'aspectRatio', label: 'Ratio', type: 'select', options: ['1:1','16:9','9:16','4:3','3:4'] }], endpoint: '/api/image/text2image' },
   'image-removebg': { crumb: 'Image / Remove BG', title: 'Remove Background', desc: 'Hapus background gambar.', fields: [{ name: 'url', label: 'URL Gambar', type: 'text', placeholder: 'https://...' }], endpoint: '/api/image/removebg' },
   'dl-aio': { crumb: 'Download / AIO', title: 'All In One Downloader', desc: 'Download video sosmed.', fields: [{ name: 'url', label: 'URL Video', type: 'text', placeholder: 'https://tiktok.com/...' }], endpoint: '/api/download/aio' },
-  'create-amprem': { crumb: 'Create / Am Prem', title: 'Alight Motion Premium', desc: 'Kirim magic link & verifikasi ke email.', fields: [{ name: 'stage', label: 'Stage', type: 'select', options: ['1 - Send Link', '2 - Verify Link'] }, { name: 'email', label: 'Email', type: 'email', placeholder: 'you@mail.com' }, { name: 'magicLink', label: 'Magic Link (Khusus Stage 2)', type: 'text', placeholder: 'https://alight-creative.firebaseapp.com/...' }], endpoint: '/api/create/amprem' },
-  'create-netflix': { crumb: 'Create / Netflix', title: 'Netflix Generator', desc: 'Generate token Netflix.', fields: [{ name: 'count', label: 'Jumlah', type: 'number', value: 1 }], endpoint: '/api/create/netflix' }
+  'create-amprem': { crumb: 'Create / Am Prem', title: 'Alight Motion Premium', desc: 'Dapatkan akses premium Alight Motion secara gratis.', fields: [], endpoint: '/api/create/amprem' },
+  'create-netflix': { crumb: 'Create / Netflix', title: 'Netflix Generator', desc: 'Generate token Netflix aktif.', fields: [{ name: 'count', label: 'Jumlah Token', type: 'number', value: 1 }], endpoint: '/api/create/netflix' }
 };
 
 const contentEl = document.getElementById('content');
@@ -61,6 +61,57 @@ function renderView(key) {
   const v = views[key];
   if (!v) return;
   crumbEl.textContent = v.crumb;
+
+  if (key === 'create-amprem') {
+    contentEl.innerHTML = `
+      <div class="view">
+        <h1>${v.title}</h1><p class="desc">${v.desc}</p>
+        
+        <div class="amprem-container">
+          <div class="amprem-group">
+            <label>Stage 1 — Email Alight Motion:</label>
+            <input type="email" id="amEmail1" placeholder="email@domain.com" />
+            <button class="btn" style="width:100%; margin-top:10px;" onclick="processAmPrem('1')">[1/2] kirim magic link</button>
+          </div>
+
+          <div class="amprem-group" style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
+            <label>Stage 2 — Email Alight Motion:</label>
+            <input type="email" id="amEmail2" placeholder="email@domain.com" />
+            
+            <label style="margin-top:15px; display:block;">Stage 2 — Paste Magic Link (Firebase):</label>
+            <input type="text" id="amLink" placeholder="https://alight-creative.firebaseapp.com/..." />
+            
+            <button class="btn" style="width:100%; margin-top:15px;" onclick="processAmPrem('2')">[2/2] verifikasi & aktifkan premium</button>
+          </div>
+
+          <a href="https://whatsapp.com/channel/0029Vb82nkLEwEjtLSQ49I44" target="_blank" class="btn btn-outline" style="width:100%; margin-top:20px; text-align:center; display:block; text-decoration:none;">JOIN OUR CHANNEL</a>
+        </div>
+
+        <div class="result" id="result" style="display:none; margin-top:20px;">
+          <div class="result-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+             <span>Response JSON:</span>
+             <div style="display:flex; gap:10px;">
+               <button class="btn-copy" onclick="copyJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">copy json</button>
+               <button class="btn-download" onclick="downloadJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">download .json</button>
+             </div>
+          </div>
+          <pre id="jsonResult" style="user-select:text; white-space:pre-wrap; word-break:break-all;"></pre>
+        </div>
+      </div>
+      
+      <style>
+        .amprem-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+        .amprem-group label { display:block; font-size:13px; color:var(--text-dim); margin-bottom:8px; }
+        .amprem-group input { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px; color:var(--text); font-family:var(--font); margin-bottom:10px; outline:none; }
+        .amprem-group input:focus { border-color: var(--accent); }
+        .btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+        .btn-outline:hover { background: var(--accent); color: #000; }
+        .result pre { font-size:12px; color:#4ade80; }
+      </style>
+    `;
+    return;
+  }
+
   const fieldsHtml = v.fields.map(f => {
     if (f.type === 'select') return `<div class="field"><label>${f.label}</label><select name="${f.name}">${f.options.map(o => `<option value="${o}">${o}</option>`).join('')}</select></div>`;
     if (f.type === 'textarea') return `<div class="field"><label>${f.label}</label><textarea name="${f.name}" placeholder="${f.placeholder||''}"></textarea></div>`;
@@ -71,7 +122,18 @@ function renderView(key) {
     <div class="view">
       <h1>${v.title}</h1><p class="desc">${v.desc}</p>
       <form id="theForm">${fieldsHtml}<button class="btn" type="submit" id="submitBtn">Proses</button></form>
-      <div class="result" id="result">Menunggu input…</div>
+      
+      <div class="result" id="result" style="display:none;">
+        <div class="result-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+           <span>Response JSON:</span>
+           <div style="display:flex; gap:10px;">
+             <button class="btn-copy" onclick="copyJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">copy json</button>
+             <button class="btn-download" onclick="downloadJson()" style="background:none; border:none; color:var(--text); cursor:pointer; font-size:12px;">download .json</button>
+           </div>
+        </div>
+        <pre id="jsonResult" style="user-select:text; white-space:pre-wrap; word-break:break-all; color:#4ade80; font-size:12px;"></pre>
+        <div id="imageContainer"></div>
+      </div>
     </div>`;
 
   document.getElementById('theForm').addEventListener('submit', async (e) => {
@@ -82,31 +144,72 @@ function renderView(key) {
     new FormData(e.target).forEach((val, key) => payload[key] = val);
 
     btn.disabled = true; btn.textContent = 'Memproses…';
-    out.className = 'result'; out.textContent = '⏳ Sedang diproses…';
+    out.style.display = 'block'; document.getElementById('jsonResult').textContent = '⏳ Sedang diproses…';
+    document.getElementById('imageContainer').innerHTML = '';
 
     try {
       const res = await fetch(v.endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = await res.json();
-      out.className = 'result ok';
-      out.textContent = JSON.stringify(data, null, 2);
+      
+      window.currentJsonData = data; // Simpan untuk copy/download
+      document.getElementById('jsonResult').textContent = JSON.stringify(data, null, 2);
       
       const imgUrl = data?.image_url || data?.data?.url || data?.result?.url || data?.result?.image_url || (data?.image && data.image.startsWith('data:image') ? data.image : null);
       if (imgUrl) {
-        const img = document.createElement('img'); img.src = imgUrl; out.appendChild(img);
+        const img = document.createElement('img'); img.src = imgUrl; img.style.maxWidth = '100%'; img.style.marginTop = '10px'; img.style.borderRadius = '8px';
+        document.getElementById('imageContainer').appendChild(img);
       }
     } catch (err) {
-      out.className = 'result err'; out.textContent = '❌ Error: ' + err.message;
+      document.getElementById('jsonResult').textContent = '❌ Error: ' + err.message;
+      document.getElementById('jsonResult').style.color = '#f87171';
     } finally {
       btn.disabled = false; btn.textContent = 'Proses';
     }
   });
 }
 
+/* ================= GLOBAL FUNCTIONS ================= */
+window.copyJson = function() {
+  if (!window.currentJsonData) return;
+  navigator.clipboard.writeText(JSON.stringify(window.currentJsonData, null, 2)).then(() => alert('JSON berhasil dicopy!'));
+};
+
+window.downloadJson = function() {
+  if (!window.currentJsonData) return;
+  const blob = new Blob([JSON.stringify(window.currentJsonData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'result.json'; a.click();
+  URL.revokeObjectURL(url);
+};
+
+window.processAmPrem = async function(stage) {
+  const email = stage === '1' ? document.getElementById('amEmail1').value : document.getElementById('amEmail2').value;
+  const magicLink = stage === '2' ? document.getElementById('amLink').value : '';
+  const out = document.getElementById('result');
+  const pre = document.getElementById('jsonResult');
+  
+  if (!email) return alert('Email wajib diisi!');
+  if (stage === '2' && !magicLink) return alert('Magic link wajib diisi!');
+
+  out.style.display = 'block';
+  pre.textContent = '⏳ Sedang memproses...';
+  pre.style.color = '#4ade80';
+
+  try {
+    const res = await fetch('/api/create/amprem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ stage, email, magicLink }) });
+    const data = await res.json();
+    window.currentJsonData = data;
+    pre.textContent = JSON.stringify(data, null, 2);
+  } catch (err) {
+    pre.textContent = '❌ Error: ' + err.message;
+    pre.style.color = '#f87171';
+  }
+};
+
+/* ================= MENU & NAVIGATION ================= */
 document.querySelectorAll('.nav-title').forEach(title => {
-  title.addEventListener('click', () => {
-    const group = title.parentElement;
-    group.classList.toggle('open');
-  });
+  title.addEventListener('click', () => title.parentElement.classList.toggle('open'));
 });
 
 navItems.forEach(item => {
